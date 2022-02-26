@@ -9,6 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="SharpAdbClient" Version="2.3.23" />
+	<PackageReference Include="Colorful.Console" Version="1.2.9" />
   </ItemGroup>
+	<ItemGroup>
+		<None Update="larry3d.flf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>
