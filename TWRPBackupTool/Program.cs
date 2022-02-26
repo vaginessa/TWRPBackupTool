@@ -30,6 +30,7 @@ public class Program
         var choice = 0;
         var server = new AdbServer();
         var client = new AdbClient();
+        var devices = client.GetDevices();
         do
         {
            DisplayMenu();
@@ -54,9 +55,7 @@ public class Program
                    Write("Next Command: ");
                    choice = ToInt32(ReadLine());                    
                    break;
-                case 5:
-
-                    var devices = client.GetDevices();
+                case 5:                  
                     WriteLine("=====================================================================");
                     WriteLine("| No.|    Name\t|     Model   \t |    State\t|     Serial\t  |");
                     foreach (var device in devices)
@@ -64,6 +63,22 @@ public class Program
                         WriteLine($"  {devices.IndexOf(device)+1} \t{device.Name}   \t{device.Model}\t    {device.State}\t  {device.Serial}\n\n");
                     }
                     WriteLine("_____________________________________________________________________\n");
+                    break;
+                case 4:
+                    WriteLine("=====================================================================");
+                    WriteLine("| No.|    Name\t|     Model   \t |    State\t|     Serial\t  |");
+                    foreach (var device in devices)
+                    {
+                        WriteLine($"  {devices.IndexOf(device) + 1} \t{device.Name}   \t{device.Model}\t    {device.State}\t  {device.Serial}\n\n");
+                    }
+                    WriteLine("_____________________________________________________________________\n");
+                    Write("Choose Device: ");
+                    var exist = devices.FirstOrDefault(d => devices.IndexOf(d) + 1 == ToInt32(ReadLine()));
+                    if(exist==null)
+                    {
+                        WriteLine("Invalid entry.");
+                    }
+                    client.Reboot("system", exist);
                     break;
             }
         } while (choice!=0);
