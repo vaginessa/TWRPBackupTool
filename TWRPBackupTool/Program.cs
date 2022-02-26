@@ -8,9 +8,10 @@ using System.Text;
 namespace TWRPBackupTool;
 public class Program
 {
-
+    
     static void DisplayMenu()
     {
+        WriteLine("");
         WriteLine("\t[1] Reboot to recovery\n\t[2] Backup (disconnect other devices!!)\n\t[3] Restore Backup\n\t[4] Reboot System\n\t[5] Check connectivity\n\t[6] Start Server\n\t[0] Quit\n");
     }
 
@@ -50,50 +51,6 @@ public class Program
                 case 2:
                     {
                         //check if device is in recovery
-
-                        if (!devices.Any())
-                        {
-                            WriteLine("No devices detected..");
-                            break;
-                        }
-                        var dev = devices.First();
-
-                        if (dev.State == DeviceState.Offline && dev.State == DeviceState.Unknown)
-                        {
-                            WriteLine("Device is offline or unknown state");
-                            break;
-                        }
-                        else if (dev.State == DeviceState.Unauthorized)
-                        {
-                            WriteLine("Please enable usb debugging..");
-                            break;
-                        }                  
-         
-                        var command = @"adb backup --twrp";
-                        var startInfo = new ProcessStartInfo
-                        {
-                            FileName = "cmd.exe",
-                            Arguments = "/K " + command,
-                            RedirectStandardOutput = true,
-                            CreateNoWindow = true,
-                            WindowStyle = ProcessWindowStyle.Hidden
-                        };
-                        using var cmd = Process.Start(startInfo);
-                        var output = new StringBuilder();
-                        cmd.OutputDataReceived += (sender, args) => output.AppendLine(args.Data);
-                        cmd.BeginOutputReadLine();
-                        WriteLine("Check your device and Select partitions to backup. Don't close this window until backup is finished.");
-                        cmd.WaitForExit();
-                        string stdOut = output.ToString();
-                        WriteLine(stdOut);
-                        break;
-                    }
-                case 3:
-                    {
-                        Write("Enter backup name (e.g) backup.ab");
-                        var filename = ReadLine();
-                        //check if device is in recovery
-
                         if (!devices.Any())
                         {
                             WriteLine("No devices detected..");
@@ -119,6 +76,48 @@ public class Program
                                 WriteLine("Press any key to continue");
                                 ReadLine();
                             }
+                        }
+                        var command = @"adb backup --twrp";
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = "/K " + command,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using var cmd = Process.Start(startInfo);
+                        var output = new StringBuilder();
+                        cmd.OutputDataReceived += (sender, args) => output.AppendLine(args.Data);
+                        cmd.BeginOutputReadLine();
+                        WriteLine("Check your device and Select partitions to backup. Don't close this window until backup is finished.");
+                        ShowSpinner();
+                        cmd.WaitForExit();
+                        string stdOut = output.ToString();
+                        WriteLine(stdOut);
+                        break;
+                    }
+                case 3:
+                    {
+                        Write("Enter backup name (e.g) backup.ab");
+                        var filename = ReadLine();
+                        //check if device is in recovery
+                        if (!devices.Any())
+                        {
+                            WriteLine("No devices detected..");
+                            break;
+                        }
+                        var dev = devices.First();
+
+                        if (dev.State == DeviceState.Offline && dev.State == DeviceState.Unknown)
+                        {
+                            WriteLine("Device is offline or unknown state");
+                            break;
+                        }
+                        else if (dev.State == DeviceState.Unauthorized)
+                        {
+                            WriteLine("Please enable usb debugging..");
+                            break;
                         }
                         var receivedMessage = new ConsoleOutputReceiver();
                         var command = @$"adb restore {filename}";
@@ -174,6 +173,22 @@ public class Program
             }
         } while (choice != 0);
     }
-
+    static async void ShowSpinner()
+    {
+        var counter = 0;
+        for (int i = 0; ; i++)
+        {
+            switch (counter % 4)
+            {
+                case 0: Write("/"); await Task.Delay(100); break;
+                case 1: Write("-"); await Task.Delay(100); break;
+                case 2: Write("\\"); await Task.Delay(100); break;
+                case 3: Write("|"); await Task.Delay(100); break;
+            }
+            SetCursorPosition(CursorLeft - 1, CursorTop);
+            counter++;
+           
+        }
+    }
 }
 
