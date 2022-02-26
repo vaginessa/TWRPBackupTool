@@ -14,10 +14,13 @@ public class Program
         var startInfo = new ProcessStartInfo
         {
             FileName = "cmd.exe",
-            Arguments = "/K " + command,
-            UseShellExecute = true
+            Arguments = command,
+            UseShellExecute = true,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden
         };
         Process.Start(startInfo);
+        WriteLine("Done.");
         return Task.CompletedTask;
     }
     public static async Task Main()
