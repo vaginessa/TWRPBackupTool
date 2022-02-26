@@ -3,6 +3,7 @@ using static System.Convert;
 using SharpAdbClient;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 
 namespace TWRPBackupTool;
 public class Program
@@ -49,6 +50,12 @@ public class Program
                 case 2:
                     {
                         //check if device is in recovery
+
+                        if(!devices.Any())
+                        {
+                            WriteLine("No devices detected..");
+                            break;
+                        }
                         var dev = devices.First();
                         if(dev.State !=DeviceState.Recovery)
                         {
@@ -81,12 +88,18 @@ public class Program
                             WindowStyle = ProcessWindowStyle.Hidden
                         };
                         using var cmd = Process.Start(startInfo);
-                        string output = cmd.StandardOutput.ReadToEnd(); 
-                        WriteLine(output);
+                        var output = new StringBuilder();
+                        cmd.OutputDataReceived += (sender, args) => output.AppendLine(args.Data);
+                        cmd.BeginOutputReadLine();
+                        WriteLine("Check your device and Select partitions to backup. Don't close this window until backup is finished."); 
                         cmd.WaitForExit();
-                        
+                        string stdOut = output.ToString();
+                        WriteLine(stdOut);
                         break;
                     }
+                case 3:
+
+                    break;
                 case 6:
                    var result =server.StartServer(@"C:\Program Files (x86)\Android\android-sdk\platform-tools\adb.exe", false);
         
@@ -121,5 +134,6 @@ public class Program
             }
         } while (choice!=0);
     }
+    
 }
 
