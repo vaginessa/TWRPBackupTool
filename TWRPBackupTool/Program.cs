@@ -23,6 +23,12 @@ public class Program
         WriteLine("Done.");
         return Task.CompletedTask;
     }
+    static Task Backup()
+    {
+        //check if the device is in recovery mode
+
+        return Task.CompletedTask;
+    }
     public static async Task Main()
     {
         var choice = 0;
@@ -37,6 +43,9 @@ public class Program
                     await RebootToRecovery();
                     Write("Next Command: ");
                     choice = ToInt32(ReadLine());
+                    break;
+                case 2:
+                    await Backup();
                     break;
                 
            }
